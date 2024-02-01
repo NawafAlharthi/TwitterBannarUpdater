@@ -5,6 +5,7 @@ from PIL import Image
 from datetime import datetime
 import pytz
 import time
+import schedule
 
 app = Flask(__name__)
 
@@ -16,7 +17,6 @@ def update_twitter_header(api, image_paths, current_hour):
     img_rgb.save("header.jpg")
     api.update_profile_banner("header.jpg")
 
-@app.route('/update_header')
 def update_header():
     image_paths = [
         '1.png', '2.png', '3.png', '4.png', '5.png', '6.png', '7.png', '8.png', 
@@ -42,6 +42,12 @@ def update_header():
     update_twitter_header(api, image_paths, riyadh_time.hour)
     
     return "Twitter header updated!"
+
+schedule.every(1).minutes.do(update_header)
+
+while True:
+    schedule.run_pending()
+    time.sleep(1)
 
 if __name__ == '__main__':
     app.run(debug=True)
