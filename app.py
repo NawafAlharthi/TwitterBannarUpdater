@@ -1,9 +1,12 @@
-# cron_task.py
+from flask import Flask
 import os
 import tweepy
 from PIL import Image
 from datetime import datetime
 import pytz
+import time
+
+app = Flask(__name__)
 
 def update_twitter_header(api, image_paths, current_hour):
     image_path = image_paths[current_hour - 1] 
@@ -13,6 +16,7 @@ def update_twitter_header(api, image_paths, current_hour):
     img_rgb.save("header.jpg")
     api.update_profile_banner("header.jpg")
 
+@app.route('/update_header')
 def update_header():
     image_paths = [
         '1.png', '2.png', '3.png', '4.png', '5.png', '6.png', '7.png', '8.png', 
@@ -23,10 +27,10 @@ def update_header():
     
     # Twitter API credentials should be configured as environment variables
     # for better security practices
-    consumer_key = os.environ.get('TWITTER_CONSUMER_KEY')
-    consumer_secret = os.environ.get('TWITTER_CONSUMER_SECRET')
-    access_token = os.environ.get('TWITTER_ACCESS_TOKEN')
-    access_token_secret = os.environ.get('TWITTER_ACCESS_TOKEN_SECRET')
+    consumer_key = 'EYiDp3DAgJ63GWglkd7t7NKto'
+    consumer_secret = 'GEogBm4WhpidViklHgRM0TEJ2X2da9TWoOjcw5vp0adpfdftkP'
+    access_token = '1298426893730029568-TYC4ISkKBMgRUBax2iXdk1VySb5Fxg'
+    access_token_secret = 'gVCC24yNeMduHwHRw55T9KBUDqaOu0Nw9fXJJCpJiczGE'
 
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_token_secret)
@@ -37,7 +41,7 @@ def update_header():
 
     update_twitter_header(api, image_paths, riyadh_time.hour)
     
-    print("Twitter header updated!")
+    return "Twitter header updated!"
 
 if __name__ == '__main__':
-    update_header()
+    app.run(debug=True)
