@@ -55,7 +55,11 @@ if __name__ == '__main__':
     auth.set_access_token(access_token, access_token_secret)
     api = tweepy.API(auth)
 
-    riyadh_tz = pytz.timezone('Asia/Riyadh')
-    riyadh_time = datetime.now(riyadh_tz)
+    while True:
+        
+        riyadh_tz = pytz.timezone('Asia/Riyadh')
+        riyadh_time = datetime.now(riyadh_tz)
 
-    update_twitter_header(api, image_paths, riyadh_time.hour)
+        update_twitter_header(api, image_paths, riyadh_time.hour)
+        
+        time.sleep(60)  # Pause for 60 seconds (1 minute)
