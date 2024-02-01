@@ -3,6 +3,7 @@ import tweepy
 from PIL import Image
 from datetime import datetime
 import pytz
+import time
 
 def update_twitter_header(api, image_paths, current_hour):
 
