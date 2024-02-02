@@ -1,69 +1,50 @@
 import os
 import tweepy
 from PIL import Image
+import requests
+from io import BytesIO
 from datetime import datetime
 import pytz
+import time
+
+def download_image(image_url):
+    response = requests.get(image_url)
+    if response.status_code == 200:
+        return Image.open(BytesIO(response.content))
+    else:
+        raise Exception(f"Error downloading image: Status code {response.status_code}")
+
 def update_twitter_header(api, image_paths, current_hour):
-
-    image_path = image_paths[current_hour - 1] 
-
-    # Open and resize the image
-    img = Image.open(image_path)
-    img = img.resize((1500, 500))
-
-    # Convert the image from RGBA to RGB
-    img_rgb = img.convert('RGB')
-
-    # Save the image
-    img_rgb.save("header.jpg")
-
-    # Update the Twitter header
-    api.update_profile_banner("header.jpg")
+    image_index = current_hour - 2
+    if 0 <= image_index < len(image_paths):
+        image_url = image_paths[image_index]
+        if image_url.startswith('http'):
+            img = download_image(image_url)
+        else:
+            img = Image.open(image_url)
+        
+        img = img.resize((1500, 500))
+        img_rgb = img.convert('RGB')
+        img_rgb.save("header.jpg")
+        api.update_profile_banner("header.jpg")
+        print("updated!")
+    else:
+        raise Exception("Invalid hour or no image path available.")
 
 if __name__ == '__main__':
-    # Array of image paths
-
     image_paths = [
-        '1.png',  
-        '2.png', 
-        '3.png', 
-        '4.png', 
-        '5.png', 
-        '6.png', 
-        '7.png', 
-        '8.png', 
-        '9.png', 
-        '10.png', 
-        '11.png', 
-        '12.png', 
-        '13.png', 
-        '14.png', 
-        '15.png', 
-        '16.png', 
-        '17.png', 
-        '18.png', 
-        '19.png', 
-        '20.png', 
-        '21.png', 
-        '22.png', 
-        '23.png', 
-        '24.png', 
+        #Put your Pics here
     ]
-    # Twitter API credentials
 
-    consumer_key = 'EYiDp3DAgJ63GWglkd7t7NKto'
-    consumer_secret = 'GEogBm4WhpidViklHgRM0TEJ2X2da9TWoOjcw5vp0adpfdftkP'
-    access_token = '1298426893730029568-TYC4ISkKBMgRUBax2iXdk1VySb5Fxg'
-    access_token_secret = 'gVCC24yNeMduHwHRw55T9KBUDqaOu0Nw9fXJJCpJiczGE'
+    # credentials
+    consumer_key = ''
+    consumer_secret = ''
+    access_token = ''
+    access_token_secret = ''
 
-    # Authenticate with Twitter
     auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
     auth.set_access_token(access_token, access_token_secret)
     api = tweepy.API(auth)
-
-    # Get the current time in Riyadh
     riyadh_tz = pytz.timezone('Asia/Riyadh')
     riyadh_time = datetime.now(riyadh_tz)
-
-    # Call the function with the current hour in Riyadh
     update_twitter_header(api, image_paths, riyadh_time.hour)
